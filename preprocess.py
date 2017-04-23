@@ -62,6 +62,9 @@ class PreProcessor():
 	def get_word_embedding_matrix(self,EMBEDDING_DIM=300):
 		embeddings_index = {}
 
+		if self.we_file == "rand":
+			return None
+
 		f = open(self.we_file)
 
 		for line in f:

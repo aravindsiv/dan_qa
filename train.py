@@ -1,16 +1,17 @@
 import argparse
 
-from custom_layers import AverageWords
+from custom_layers import AverageWords, WordDropout
 from preprocess import PreProcessor
 
 from keras.layers import Embedding, Dense, Input, BatchNormalization, Activation, Dropout
 from keras.models import Sequential
 from keras.optimizers import Adagrad
+from keras import backend as K
 
 embedding_dim = 300
 num_hidden_layers = 3
 num_hidden_units = 300
-num_epochs = 50
+num_epochs = 1
 batch_size = 100
 dropout_rate = 0.5
 activation = 'relu'
@@ -18,7 +19,7 @@ activation = 'relu'
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-data', help='location of dataset', default='data/out_split.pk')
+    parser.add_argument('-data', help='location of dataset', default='data/out_sent_split.pk')
     parser.add_argument('-We', help='location of word embeddings', default='data/glove.6B.300d.txt')
     parser.add_argument('-model', help='model to run: nbow or dan', default='nbow')
 
@@ -27,11 +28,16 @@ if __name__ == "__main__":
     pp = PreProcessor(args['data'],args['We'])
     pp.tokenize()
     data, labels, data_val, labels_val = pp.make_data()
+
     embedding_matrix = pp.get_word_embedding_matrix()
 
     model = Sequential()
-    model.add(Embedding(len(pp.word_index)+1,embedding_dim,weights=[embedding_matrix],\
-        input_length=pp.MAX_SEQUENCE_LENGTH))
+
+    if args['We'] == "rand":
+        model.add(Embedding(len(pp.word_index) + 1,embedding_dim,input_length=pp.MAX_SEQUENCE_LENGTH))
+    else:
+        model.add(Embedding(len(pp.word_index)+1,embedding_dim,weights=[embedding_matrix],input_length=pp.MAX_SEQUENCE_LENGTH))
+    
     model.add(AverageWords())
 
     if args['model'] == 'dan':
@@ -51,4 +57,10 @@ if __name__ == "__main__":
 
     model.summary()
 
-    model.fit(data,labels,batch_size=batch_size,epochs=num_epochs,validation_data=(data_val,labels_val))
+    # model.fit(data,labels,batch_size=batch_size,epochs=num_epochs,validation_data=(data_val,labels_val))
+
+    get_embedding_layer_output = K.function([model.layers[0].input],[model.layers[0].output])
+    print get_embedding_layer_output([data])[0].shape
+
+    get_average_word_layer_output = K.function([model.layers[0].input],[model.layers[1].output])
+    print get_average_word_layer_output([data])[0]
