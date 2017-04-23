@@ -7,10 +7,11 @@ from keras.layers import Embedding, Dense, Input, BatchNormalization, Activation
 from keras.models import Sequential
 from keras.optimizers import Adagrad
 
-
 embedding_dim = 300
 num_hidden_layers = 3
 num_hidden_units = 300
+num_epochs = 50
+batch_size = 100
 dropout_rate = 0.5
 activation = 'relu'
 
@@ -29,7 +30,7 @@ if __name__ == "__main__":
     embedding_matrix = pp.get_word_embedding_matrix()
 
     model = Sequential()
-    model.add(Embedding(len(pp.word_index)+1,EMBEDDING_DIM,weights=[embedding_matrix],\
+    model.add(Embedding(len(pp.word_index)+1,embedding_dim,weights=[embedding_matrix],\
         input_length=pp.MAX_SEQUENCE_LENGTH))
     model.add(AverageWords())
 
@@ -50,4 +51,4 @@ if __name__ == "__main__":
 
     model.summary()
 
-    model.fit(data,labels,batch_size=100,epochs=10,validation_data=(data_val,labels_val))
+    model.fit(data,labels,batch_size=batch_size,epochs=num_epochs,validation_data=(data_val,labels_val))

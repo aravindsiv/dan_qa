@@ -42,7 +42,6 @@ class PreProcessor():
 		    labels_index[j] = i
 		    answers_index[i] = j
 		    
-		    
 		labels = np.zeros((len(self.sequences),1))
 		labels_val = np.zeros((len(self.sequences_val),1))
 
@@ -75,6 +74,7 @@ class PreProcessor():
 		print('Found %s word vectors.' % len(embeddings_index))
 
 		self.embedding_matrix = np.zeros((len(self.word_index)+1, EMBEDDING_DIM))
+
 		for word, i in self.word_index.items():
 		    embedding_vector = embeddings_index.get(word)
 		    if embedding_vector is not None:
@@ -82,3 +82,6 @@ class PreProcessor():
 		        self.embedding_matrix[i] = embedding_vector
 
 		return self.embedding_matrix
+
+if __name__ == "__main__":
+	pass
