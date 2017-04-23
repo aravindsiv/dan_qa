@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     if args['model'] == 'dan':
         for i in range(num_hidden_layers):
-            model.add(Dense(num_hidden_layers))
+            model.add(Dense(num_hidden_units))
             model.add(BatchNormalization())
             model.add(Activation(activation))
             # model.add(Dropout(dropout_rate))
