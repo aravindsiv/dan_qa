@@ -18,7 +18,8 @@ activation = 'relu'
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-data', help='location of dataset', default='data/out_split.pk')
+    #parser.add_argument('-data', help='location of dataset', default='data/out_split.pk')
+    parser.add_argument('-data', help='location of dataset', default='data/out_sent_split.pk')
     parser.add_argument('-We', help='location of word embeddings', default='data/glove.6B.300d.txt')
     parser.add_argument('-model', help='model to run: nbow or dan', default='nbow')
 
