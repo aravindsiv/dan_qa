@@ -5,7 +5,7 @@ from keras.utils import to_categorical
 import cPickle as pkl
 import numpy as np
 
-class PreProcessor():
+class PreProcessor:
 	def __init__(self,INPUT_FILE,WE_FILE):
 		self.input_file = INPUT_FILE
 		self.we_file = WE_FILE
@@ -16,11 +16,12 @@ class PreProcessor():
 		self.train_data = np.array(data["train"])
 		self.val_data = np.array(data["dev"])
 
-		questions = np.array(["".join(self.train_data[i,0]) for i in range(self.train_data.shape[0])])
-		questions_val = np.array(["".join(self.train_data[i,0]) for i in range(self.val_data.shape[0])])
+		questions = np.array([self.train_data[i,0] for i in range(self.train_data.shape[0])])
+		questions_val = np.array([self.train_data[i,0] for i in range(self.val_data.shape[0])])
 
 		tokenizer = Tokenizer()
 		tokenizer.fit_on_texts(questions)
+
 		self.sequences = tokenizer.texts_to_sequences(questions)
 		self.sequences_val = tokenizer.texts_to_sequences(questions_val)
 

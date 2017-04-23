@@ -1,4 +1,5 @@
 import argparse
+import numpy as np
 
 from custom_layers import AverageWords, WordDropout
 from preprocess import PreProcessor
@@ -45,11 +46,11 @@ if __name__ == "__main__":
             model.add(Dense(num_hidden_layers))
             model.add(BatchNormalization())
             model.add(Activation(activation))
-            model.add(Dropout(dropout_rate))
+            # model.add(Dropout(dropout_rate))
 
     model.add(Dense(labels.shape[1]))
     model.add(BatchNormalization())
-    model.add(Dropout(dropout_rate))
+    # model.add(Dropout(dropout_rate))
     model.add(Activation('softmax'))
 
     adagrad = Adagrad()
@@ -57,10 +58,13 @@ if __name__ == "__main__":
 
     model.summary()
 
-    # model.fit(data,labels,batch_size=batch_size,epochs=num_epochs,validation_data=(data_val,labels_val))
+    # get_embedding_layer_output = K.function([model.layers[0].input],[model.layers[0].output])
+    # el_output = np.mean(get_embedding_layer_output([data])[0],axis=1)
+    # print el_output
 
-    get_embedding_layer_output = K.function([model.layers[0].input],[model.layers[0].output])
-    print get_embedding_layer_output([data])[0].shape
+    # get_average_word_layer_output = K.function([model.layers[0].input],[model.layers[1].output])
+    # print get_average_word_layer_output([data])[0]
 
-    get_average_word_layer_output = K.function([model.layers[0].input],[model.layers[1].output])
-    print get_average_word_layer_output([data])[0]
+    model.fit(data,labels,batch_size=batch_size,epochs=num_epochs,validation_data=(data_val,labels_val))
+
+    
