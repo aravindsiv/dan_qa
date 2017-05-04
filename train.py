@@ -6,22 +6,23 @@ from preprocess import PreProcessor
 
 from keras.layers import Embedding, Dense, Input, BatchNormalization, Activation, Dropout
 from keras.models import Sequential
-from keras.optimizers import Adagrad
+from keras.optimizers import Adagrad, Adam
 from keras import backend as K
 
-embedding_dim = 300
+embedding_dim = 100
 num_hidden_layers = 3
 num_hidden_units = 300
-num_epochs = 1
+num_epochs = 100
 batch_size = 100
 dropout_rate = 0.5
+word_dropout_rate = 0.3
 activation = 'relu'
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-data', help='location of dataset', default='data/out_sent_split.pk')
-    parser.add_argument('-We', help='location of word embeddings', default='data/glove.6B.300d.txt')
+    parser.add_argument('-We', help='location of word embeddings', default='data/glove.6B.100d.txt')
     parser.add_argument('-model', help='model to run: nbow or dan', default='nbow')
 
     args = vars(parser.parse_args())
@@ -35,10 +36,11 @@ if __name__ == "__main__":
     model = Sequential()
 
     if args['We'] == "rand":
-        model.add(Embedding(len(pp.word_index) + 1,embedding_dim,input_length=pp.MAX_SEQUENCE_LENGTH))
+        model.add(Embedding(len(pp.word_index) + 1,embedding_dim,input_length=pp.MAX_SEQUENCE_LENGTH,trainable=False))
     else:
-        model.add(Embedding(len(pp.word_index)+1,embedding_dim,weights=[embedding_matrix],input_length=pp.MAX_SEQUENCE_LENGTH))
+        model.add(Embedding(len(pp.word_index)+1,embedding_dim,weights=[embedding_matrix],input_length=pp.MAX_SEQUENCE_LENGTH,trainable=False))
     
+    model.add(WordDropout(word_dropout_rate))
     model.add(AverageWords())
 
     if args['model'] == 'dan':
@@ -46,15 +48,15 @@ if __name__ == "__main__":
             model.add(Dense(num_hidden_units))
             model.add(BatchNormalization())
             model.add(Activation(activation))
-            # model.add(Dropout(dropout_rate))
+            model.add(Dropout(dropout_rate))
 
     model.add(Dense(labels.shape[1]))
     model.add(BatchNormalization())
-    # model.add(Dropout(dropout_rate))
+    model.add(Dropout(dropout_rate))
     model.add(Activation('softmax'))
 
-    adagrad = Adagrad()
-    model.compile(loss='categorical_crossentropy',optimizer=adagrad,metrics=['categorical_accuracy'])
+    adam = Adam()
+    model.compile(loss='categorical_crossentropy',optimizer=adam,metrics=['categorical_accuracy'])
 
     model.summary()
 

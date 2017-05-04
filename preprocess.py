@@ -16,8 +16,11 @@ class PreProcessor:
 		self.train_data = np.array(data["train"])
 		self.val_data = np.array(data["dev"])
 
-		questions = np.array([self.train_data[i,0] for i in range(self.train_data.shape[0])])
-		questions_val = np.array([self.train_data[i,0] for i in range(self.val_data.shape[0])])
+		questions = np.array(["".join(self.train_data[i,0]) for i in range(self.train_data.shape[0])])
+		questions_val = np.array(["".join(self.val_data[i,0]) for i in range(self.val_data.shape[0])])
+
+		#questions = np.array([self.train_data[i,0] for i in range(self.train_data.shape[0])])
+		#questions_val = np.array([self.train_data[i,0] for i in range(self.val_data.shape[0])])
 
 		tokenizer = Tokenizer()
 		tokenizer.fit_on_texts(questions)
@@ -34,7 +37,9 @@ class PreProcessor:
 		data = pad_sequences(self.sequences,maxlen=self.MAX_SEQUENCE_LENGTH)
 		data_val = pad_sequences(self.sequences_val,maxlen=self.MAX_SEQUENCE_LENGTH)
 
-		answers = set(self.train_data[:,1])
+		answers_train = set(self.train_data[:,1])
+		answers_val = set(self.val_data[:,1])
+		answers = answers_train.union(answers_val)
 
 		labels_index = {} # labels_index["Henry IV of France"]
 		answers_index = {} # answers_index[0]
@@ -52,15 +57,15 @@ class PreProcessor:
 		for i in range(len(self.sequences_val)):
 		    labels_val[i] = labels_index[self.val_data[i,1]]
 		    
-		labels = to_categorical(labels)
-		labels_val = to_categorical(labels_val)
+		labels = to_categorical(labels,num_classes=len(answers))
+		labels_val = to_categorical(labels_val,num_classes=len(answers))
 
 		print "Shape of data tensor: " +str(data.shape)
 		print "Shape of label tensor: " +str(labels.shape)
 
 		return data, labels, data_val, labels_val
 
-	def get_word_embedding_matrix(self,EMBEDDING_DIM=300):
+	def get_word_embedding_matrix(self,EMBEDDING_DIM=100):
 		embeddings_index = {}
 
 		if self.we_file == "rand":
