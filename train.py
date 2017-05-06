@@ -9,21 +9,22 @@ from keras.models import Sequential
 from keras.optimizers import Adagrad, Adam
 from keras import backend as K
 
-embedding_dim = 100
+embedding_dim = 300
 num_hidden_layers = 3
 num_hidden_units = 300
 num_epochs = 100
 batch_size = 100
-dropout_rate = 0.5
+dropout_rate = 0.2
 word_dropout_rate = 0.3
 activation = 'relu'
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-data', help='location of dataset', default='data/out_sent_split.pk')
-    parser.add_argument('-We', help='location of word embeddings', default='data/glove.6B.100d.txt')
+    parser.add_argument('-data', help='location of dataset', default='data/out_split.pk')
+    parser.add_argument('-We', help='location of word embeddings', default='data/glove.6B.300d.txt')
     parser.add_argument('-model', help='model to run: nbow or dan', default='nbow')
+    parser.add_argument('-wd', help='use word dropout or not', default='y')
 
     args = vars(parser.parse_args())
 
@@ -31,7 +32,7 @@ if __name__ == "__main__":
     pp.tokenize()
     data, labels, data_val, labels_val = pp.make_data()
 
-    embedding_matrix = pp.get_word_embedding_matrix()
+    embedding_matrix = pp.get_word_embedding_matrix(embedding_dim)
 
     model = Sequential()
 
@@ -40,7 +41,8 @@ if __name__ == "__main__":
     else:
         model.add(Embedding(len(pp.word_index)+1,embedding_dim,weights=[embedding_matrix],input_length=pp.MAX_SEQUENCE_LENGTH,trainable=False))
     
-    model.add(WordDropout(word_dropout_rate))
+    if args['wd'] == 'y':
+        model.add(WordDropout(word_dropout_rate))
     model.add(AverageWords())
 
     if args['model'] == 'dan':

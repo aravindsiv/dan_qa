@@ -19,6 +19,7 @@ class PreProcessor:
 		questions = np.array(["".join(self.train_data[i,0]) for i in range(self.train_data.shape[0])])
 		questions_val = np.array(["".join(self.val_data[i,0]) for i in range(self.val_data.shape[0])])
 
+		print questions[0]
 		#questions = np.array([self.train_data[i,0] for i in range(self.train_data.shape[0])])
 		#questions_val = np.array([self.train_data[i,0] for i in range(self.val_data.shape[0])])
 
